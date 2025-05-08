@@ -84,3 +84,21 @@ Open **Git Bash** or your terminal and run:
 
 ```bash
 az login
+
+---
+
+### Step 04: Install Bicep CLI
+
+Open **Git Bash** or your terminal and run:
+
+```bash
+az bicep install
+
+---
+
+### Step 04: Verify Bicep installation
+
+Open **Git Bash** or your terminal and run:
+
+```bash
+az bicep version
