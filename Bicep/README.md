@@ -40,13 +40,25 @@ Ensure the following are installed on your machine before proceeding:
 Open **Git Bash** or your terminal and run:
 
 ```bash
-# Login to Azure
 az login
 ```
 
-# Install Bicep CLI using Azure CLI
+---
+
+### Step 04: Install Bicep CLI using Azure CLI
+
+Open **Git Bash** or your terminal and run:
+
+```bash
 az bicep install
+```
 
-# Check the installed version of Bicep
+---
+
+### Step 05: Check the installed version of Bicep
+
+Open **Git Bash** or your terminal and run:
+
+```bash
 az bicep version
-
+```
