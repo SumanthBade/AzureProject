@@ -35,7 +35,7 @@ Ensure the following are installed on your machine before proceeding:
 
 ---
 
-### Step 03: Login to Azure and Install bicep
+### Step 03: Login to Azure
 
 Open **Git Bash** or your terminal and run:
 
