@@ -42,6 +42,7 @@ Open **Git Bash** or your terminal and run:
 ```bash
 # Login to Azure
 az login
+```
 
 # Install Bicep CLI using Azure CLI
 az bicep install
