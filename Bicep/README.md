@@ -62,3 +62,32 @@ Open **Git Bash** or your terminal and run:
 ```bash
 az bicep version
 ```
+
+---
+
+### Create resource group
+
+Open **Git Bash** or your terminal and run:
+
+```bash
+az group create --name RG-AzureProject --location eastus --tags projectType=AzureProject environment=dev
+```
+
+**OUTPUT:**
+
+```bash
+{
+  "id": "/subscriptions/db75716a-bc0d-4d76-872c-0c6179241fc3/resourceGroups/RG-AzureProject",
+  "location": "eastus",
+  "managedBy": null,
+  "name": "RG-AzureProject",
+  "properties": {
+    "provisioningState": "Succeeded"
+  },
+  "tags": {
+    "environment": "dev",
+    "projectType": "AzureProject"
+  },
+  "type": "Microsoft.Resources/resourceGroups"
+}
+```
