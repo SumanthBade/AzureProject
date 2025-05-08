@@ -65,7 +65,7 @@ az bicep version
 
 ---
 
-### Create resource group
+### Step 06: Create resource group
 
 Open **Git Bash** or your terminal and run:
 
