@@ -41,3 +41,20 @@ Open **Git Bash** or your terminal and run:
 
 ```bash
 az login
+
+---
+
+### Step 02: Install Bicep Extension in VS Code
+
+1. Open **Visual Studio Code**
+2. Go to the **Extensions** tab (or press `Ctrl+Shift+X`)
+3. Search for **"Bicep"** and install the extension published by Microsoft
+
+---
+
+### Step 03: Login to Azure
+
+Open **Git Bash** or your terminal and run:
+
+```bash
+az login
