@@ -1,105 +1,97 @@
 param env string = 'dev'
 param location string = 'eastus'
-param adminUsername string = 'azureuser'
-param sshPublicKey string
-param vmSize string = 'Standard_DC4s_v2'
+param vnetAddressPrefix string = '10.0.0.0/16'
+param publicSubnetPrefix string = '10.0.0.0/28'
+param privateSubnetPrefix string = '10.0.4.0/22'
 
-var vmName = 'OperatorVM-${env}'
 var vnetName = 'AzureProject-VNet-${env}'
-var subnetName = 'PublicSubnet'
-var publicIpName = '${vmName}-pip'
-var nicName = '${vmName}-nic'
+var publicNsgName = 'PublicSubnetNSG-${env}'
+var privateNsgName = 'PrivateSubnetNSG-${env}'
 
-resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' existing = {
-  name: vnetName
-}
-
-resource subnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' existing = {
-  name: subnetName
-  parent: vnet
-}
-
-resource publicIp 'Microsoft.Network/publicIPAddresses@2024-05-01' = {
-  name: publicIpName
+resource privateNsg_resource 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
+  name: privateNsgName
   location: location
-  sku: {
-    name: 'Basic'
+  tags: {
+    environment: env
   }
   properties: {
-    publicIPAllocationMethod: 'Dynamic'
+    securityRules: []
   }
 }
 
-resource nic 'Microsoft.Network/networkInterfaces@2024-05-01' = {
-  name: nicName
+resource publicNsg_resource 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
+  name: publicNsgName
   location: location
+  tags: {
+    environment: env
+  }
   properties: {
-    ipConfigurations: [
+    securityRules: [
       {
-        name: 'ipconfig1'
+        name: 'Allow-SSH-Inbound'
         properties: {
-          subnet: {
-            id: subnet.id
-          }
-          publicIPAddress: {
-            id: publicIp.id
-          }
+          priority: 1000
+          direction: 'Inbound'
+          access: 'Allow'
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          destinationPortRange: '22'
+          sourceAddressPrefix: '*'
+          destinationAddressPrefix: '*'
         }
       }
     ]
   }
 }
 
-resource vm 'Microsoft.Compute/virtualMachines@2024-11-01' = {
-  name: vmName
+resource vnet_resource 'Microsoft.Network/virtualNetworks@2024-05-01' = {
+  name: vnetName
   location: location
   tags: {
     environment: env
   }
   properties: {
-    hardwareProfile: {
-      vmSize: vmSize
-    }
-    osProfile: {
-      computerName: vmName
-      adminUsername: adminUsername
-      linuxConfiguration: {
-        disablePasswordAuthentication: true
-        ssh: {
-          publicKeys: [
-            {
-              path: '/home/${adminUsername}/.ssh/authorized_keys'
-              keyData: sshPublicKey
-            }
-          ]
-        }
-      }
-    }
-    storageProfile: {
-      imageReference: {
-        publisher: 'Canonical'
-        offer: 'ubuntu-24_04-lts'
-        sku: 'server'
-        version: 'latest'
-      }
-      osDisk: {
-        createOption: 'FromImage'
-      }
-    }
-    networkProfile: {
-      networkInterfaces: [
-        {
-          id: nic.id
-          properties: {
-            deleteOption: 'Delete' // ✅ Valid here
-          }
-        }
+    addressSpace: {
+      addressPrefixes: [
+        vnetAddressPrefix
       ]
     }
-    diagnosticsProfile: {
-      bootDiagnostics: {
-        enabled: true
-      }
+    encryption: {
+      enabled: false
+      enforcement: 'AllowUnencrypted'
     }
+    privateEndpointVNetPolicies: 'Disabled'
+    enableDdosProtection: false
+    virtualNetworkPeerings: []
+    subnets: [
+      {
+        name: 'PublicSubnet'
+        properties: {
+          addressPrefixes: [
+            publicSubnetPrefix
+          ]
+          networkSecurityGroup: {
+            id: publicNsg_resource.id
+          }
+          delegations: []
+          privateEndpointNetworkPolicies: 'Disabled'
+          privateLinkServiceNetworkPolicies: 'Enabled'
+        }
+      }
+      {
+        name: 'PrivateSubnet'
+        properties: {
+          addressPrefixes: [
+            privateSubnetPrefix
+          ]
+          networkSecurityGroup: {
+            id: privateNsg_resource.id
+          }
+          delegations: []
+          privateEndpointNetworkPolicies: 'Disabled'
+          privateLinkServiceNetworkPolicies: 'Enabled'
+        }
+      }
+    ]
   }
 }
