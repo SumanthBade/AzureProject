@@ -1,6 +1,21 @@
+Create resource group
 az group create --name RG-AzureProject-dev --location eastus --tags projectType=AzureProject environment=dev
 
 To check what resources will be deployed(terraform plan)
-az deployment group what-if --resource-group RG-AzureProject -f vnet.bicep
+az deployment group what-if --resource-group RG-AzureProject-dev -f vnet.bicep
+
 To deploy resource(terraform apply)
-az deployment group create --resource-group RG-AzureProject -f vnet.bicep
+az deployment group create --resource-group RG-AzureProject-dev -f vnet.bicep
+
+To check what resources will be deployed(terraform plan)
+az deployment group what-if --resource-group RG-AzureProject-dev -f vm.bicep --parameters sshPublicKey='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDBrDOCm2R49t5/P4WxsStKhsTtuGbPsYzHUge7xWKUhtcCdEYHRRMGoaiEzJjQQqo58N2xCrytjY2UOlPVWN/k7/TT50q7KFGQAk3BiiqMJ/DKdYjnevP2Kg4XIX69uUUfZQc6/7ij/HIvXkKYWsvMIDtzP1lvIS9GNYL/DWldtmzXQQFOHxTq/9iA1GXt9v0rQET3UXX9jRwQI71NjBJ2yiU2p4f0GIpw2DJr52tSQt2Gk/PET5FFC0iyx62mh1kaPgnbfE0Px5I1Rqo+2lTp3dYdzmm0vrplcRD0nG4ASiYViL9xE0inCgiKeTHUr6n/oFdpNvhFLGA6wUjH6/jzvh2Bo4eVcFbCOATCQCth18FGWgwq+fZIiuvKo1GTkmUue08NGzeg32Ez1sMDoRBCloZ8MPC7qRXw+uA0KFoCoOiRQqvkWJbOFxePiSrzRfFxqaFQQIGfXB+ym4Bsk4DVupI8f+ESU09fm3TXoLkKft29IO7ah0SXRPd7GDGA6pU= generated-by-azure'
+
+To deploy resource(terraform apply)
+az deployment group create --resource-group RG-AzureProject-dev -f vm.bicep --parameters sshPublicKey='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDBrDOCm2R49t5/P4WxsStKhsTtuGbPsYzHUge7xWKUhtcCdEYHRRMGoaiEzJjQQqo58N2xCrytjY2UOlPVWN/k7/TT50q7KFGQAk3BiiqMJ/DKdYjnevP2Kg4XIX69uUUfZQc6/7ij/HIvXkKYWsvMIDtzP1lvIS9GNYL/DWldtmzXQQFOHxTq/9iA1GXt9v0rQET3UXX9jRwQI71NjBJ2yiU2p4f0GIpw2DJr52tSQt2Gk/PET5FFC0iyx62mh1kaPgnbfE0Px5I1Rqo+2lTp3dYdzmm0vrplcRD0nG4ASiYViL9xE0inCgiKeTHUr6n/oFdpNvhFLGA6wUjH6/jzvh2Bo4eVcFbCOATCQCth18FGWgwq+fZIiuvKo1GTkmUue08NGzeg32Ez1sMDoRBCloZ8MPC7qRXw+uA0KFoCoOiRQqvkWJbOFxePiSrzRfFxqaFQQIGfXB+ym4Bsk4DVupI8f+ESU09fm3TXoLkKft29IO7ah0SXRPd7GDGA6pU= generated-by-azure'
+
+
+
+
+
+
+az group delete --name RG-AzureProject-dev --yes
