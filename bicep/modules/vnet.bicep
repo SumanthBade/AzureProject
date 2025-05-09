@@ -1,17 +1,45 @@
-param virtualNetworks_AzureProject_VNet_name string
-param networkSecurityGroups_PublicSubnetNSG_externalid string
-param networkSecurityGroups_PrivateSubnetNSG_externalid string
+param env string = 'dev'
+param location string = 'eastus'
+param vnetAddressPrefix string = '10.0.0.0/16'
+param publicSubnetPrefix string = '10.0.0.0/28'
+param privateSubnetPrefix string = '10.0.4.0/22'
 
-resource virtualNetworks_AzureProject_VNet_name_resource 'Microsoft.Network/virtualNetworks@2024-05-01' = {
-  name: virtualNetworks_AzureProject_VNet_name
-  location: 'eastus'
+var vnetName = 'AzureProject-VNet-${env}'
+var publicNsgName = 'PublicSubnetNSG-${env}'
+var privateNsgName = 'PrivateSubnetNSG-${env}'
+
+resource privateNsg_resource 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
+  name: privateNsgName
+  location: location
   tags: {
-    environment: 'dev'
+    environment: env
+  }
+  properties: {
+    securityRules: []
+  }
+}
+
+resource publicNsg_resource 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
+  name: publicNsgName
+  location: location
+  tags: {
+    environment: env
+  }
+  properties: {
+    securityRules: []
+  }
+}
+
+resource vnet_resource 'Microsoft.Network/virtualNetworks@2024-05-01' = {
+  name: vnetName
+  location: location
+  tags: {
+    environment: env
   }
   properties: {
     addressSpace: {
       addressPrefixes: [
-        '10.0.0.0/16'
+        vnetAddressPrefix
       ]
     }
     encryption: {
@@ -19,78 +47,37 @@ resource virtualNetworks_AzureProject_VNet_name_resource 'Microsoft.Network/virt
       enforcement: 'AllowUnencrypted'
     }
     privateEndpointVNetPolicies: 'Disabled'
+    enableDdosProtection: false
+    virtualNetworkPeerings: []
     subnets: [
       {
         name: 'PublicSubnet'
-        id: virtualNetworks_AzureProject_VNet_name_PublicSubnet.id
         properties: {
           addressPrefixes: [
-            '10.0.0.0/28'
+            publicSubnetPrefix
           ]
           networkSecurityGroup: {
-            id: networkSecurityGroups_PublicSubnetNSG_externalid
+            id: publicNsg_resource.id
           }
           delegations: []
           privateEndpointNetworkPolicies: 'Disabled'
           privateLinkServiceNetworkPolicies: 'Enabled'
         }
-        type: 'Microsoft.Network/virtualNetworks/subnets'
       }
       {
         name: 'PrivateSubnet'
-        id: virtualNetworks_AzureProject_VNet_name_PrivateSubnet.id
         properties: {
           addressPrefixes: [
-            '10.0.4.0/22'
+            privateSubnetPrefix
           ]
           networkSecurityGroup: {
-            id: networkSecurityGroups_PrivateSubnetNSG_externalid
+            id: privateNsg_resource.id
           }
           delegations: []
           privateEndpointNetworkPolicies: 'Disabled'
           privateLinkServiceNetworkPolicies: 'Enabled'
         }
-        type: 'Microsoft.Network/virtualNetworks/subnets'
       }
     ]
-    virtualNetworkPeerings: []
-    enableDdosProtection: false
   }
 }
-
-resource virtualNetworks_AzureProject_VNet_name_PrivateSubnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
-  name: '${virtualNetworks_AzureProject_VNet_name}/PrivateSubnet'
-  properties: {
-    addressPrefixes: [
-      '10.0.4.0/22'
-    ]
-    networkSecurityGroup: {
-      id: networkSecurityGroups_PrivateSubnetNSG_externalid
-    }
-    delegations: []
-    privateEndpointNetworkPolicies: 'Disabled'
-    privateLinkServiceNetworkPolicies: 'Enabled'
-  }
-  dependsOn: [
-    virtualNetworks_AzureProject_VNet_name_resource
-  ]
-}
-
-resource virtualNetworks_AzureProject_VNet_name_PublicSubnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
-  name: '${virtualNetworks_AzureProject_VNet_name}/PublicSubnet'
-  properties: {
-    addressPrefixes: [
-      '10.0.0.0/28'
-    ]
-    networkSecurityGroup: {
-      id: networkSecurityGroups_PublicSubnetNSG_externalid
-    }
-    delegations: []
-    privateEndpointNetworkPolicies: 'Disabled'
-    privateLinkServiceNetworkPolicies: 'Enabled'
-  }
-  dependsOn: [
-    virtualNetworks_AzureProject_VNet_name_resource
-  ]
-}
-
