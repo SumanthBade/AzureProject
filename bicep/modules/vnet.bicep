@@ -1,83 +1,105 @@
 param env string = 'dev'
 param location string = 'eastus'
-param vnetAddressPrefix string = '10.0.0.0/16'
-param publicSubnetPrefix string = '10.0.0.0/28'
-param privateSubnetPrefix string = '10.0.4.0/22'
+param adminUsername string = 'azureuser'
+param sshPublicKey string
+param vmSize string = 'Standard_DC4s_v2'
 
+var vmName = 'OperatorVM-${env}'
 var vnetName = 'AzureProject-VNet-${env}'
-var publicNsgName = 'PublicSubnetNSG-${env}'
-var privateNsgName = 'PrivateSubnetNSG-${env}'
+var subnetName = 'PublicSubnet'
+var publicIpName = '${vmName}-pip'
+var nicName = '${vmName}-nic'
 
-resource privateNsg_resource 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
-  name: privateNsgName
-  location: location
-  tags: {
-    environment: env
-  }
-  properties: {
-    securityRules: []
-  }
-}
-
-resource publicNsg_resource 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
-  name: publicNsgName
-  location: location
-  tags: {
-    environment: env
-  }
-  properties: {
-    securityRules: []
-  }
-}
-
-resource vnet_resource 'Microsoft.Network/virtualNetworks@2024-05-01' = {
+resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' existing = {
   name: vnetName
+}
+
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' existing = {
+  name: subnetName
+  parent: vnet
+}
+
+resource publicIp 'Microsoft.Network/publicIPAddresses@2024-05-01' = {
+  name: publicIpName
   location: location
-  tags: {
-    environment: env
+  sku: {
+    name: 'Basic'
   }
   properties: {
-    addressSpace: {
-      addressPrefixes: [
-        vnetAddressPrefix
-      ]
-    }
-    encryption: {
-      enabled: false
-      enforcement: 'AllowUnencrypted'
-    }
-    privateEndpointVNetPolicies: 'Disabled'
-    enableDdosProtection: false
-    virtualNetworkPeerings: []
-    subnets: [
+    publicIPAllocationMethod: 'Dynamic'
+  }
+}
+
+resource nic 'Microsoft.Network/networkInterfaces@2024-05-01' = {
+  name: nicName
+  location: location
+  properties: {
+    ipConfigurations: [
       {
-        name: 'PublicSubnet'
+        name: 'ipconfig1'
         properties: {
-          addressPrefixes: [
-            publicSubnetPrefix
-          ]
-          networkSecurityGroup: {
-            id: publicNsg_resource.id
+          subnet: {
+            id: subnet.id
           }
-          delegations: []
-          privateEndpointNetworkPolicies: 'Disabled'
-          privateLinkServiceNetworkPolicies: 'Enabled'
-        }
-      }
-      {
-        name: 'PrivateSubnet'
-        properties: {
-          addressPrefixes: [
-            privateSubnetPrefix
-          ]
-          networkSecurityGroup: {
-            id: privateNsg_resource.id
+          publicIPAddress: {
+            id: publicIp.id
           }
-          delegations: []
-          privateEndpointNetworkPolicies: 'Disabled'
-          privateLinkServiceNetworkPolicies: 'Enabled'
         }
       }
     ]
+  }
+}
+
+resource vm 'Microsoft.Compute/virtualMachines@2024-11-01' = {
+  name: vmName
+  location: location
+  tags: {
+    environment: env
+  }
+  properties: {
+    hardwareProfile: {
+      vmSize: vmSize
+    }
+    osProfile: {
+      computerName: vmName
+      adminUsername: adminUsername
+      linuxConfiguration: {
+        disablePasswordAuthentication: true
+        ssh: {
+          publicKeys: [
+            {
+              path: '/home/${adminUsername}/.ssh/authorized_keys'
+              keyData: sshPublicKey
+            }
+          ]
+        }
+      }
+    }
+    storageProfile: {
+      imageReference: {
+        publisher: 'Canonical'
+        offer: 'ubuntu-24_04-lts'
+        sku: 'server'
+        version: 'latest'
+      }
+      osDisk: {
+        createOption: 'FromImage'
+      }
+    }
+    networkProfile: {
+      networkInterfaces: [
+        {
+          id: nic.id
+          properties: {
+            deleteOption: 'Delete' // ✅ Valid here
+          }
+        }
+      ]
+    }
+    diagnosticsProfile: {
+      bootDiagnostics: {
+        enabled: true
+      }
+    }
   }
 }
