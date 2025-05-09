@@ -1,0 +1,4 @@
+To check what resources will be deployed(terraform plan)
+az deployment group what-if --resource-group RG-AzureProject -f vnet.bicep
+To deploy resource(terraform apply)
+az deployment group create --resource-group RG-AzureProject -f vnet.bicep
