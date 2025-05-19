@@ -1,0 +1,29 @@
+sudo apt install git docker.io -y
+git clone https://github.com/SumanthBade/UserRegistrationApp.git
+cd UserRegistrationApp/
+
+sudo docker build -t userapp .
+sudo docker run -p 3030:3030 userapp
+
+Secrets to Add in Key Vault
+Add these secrets in Azure Key Vault:
+
+sql-username
+sql-password
+sql-server
+sql-database
+
+sql server: userappsqlserver.database.windows.net
+sqldb: userapp-sqldb-dev
+sql username: sqluser
+password: Sumanth@!~97
+
+
+Create table in sqldb
+
+CREATE TABLE Users (
+    ID INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(100),
+    Email NVARCHAR(100),
+    Contact NVARCHAR(100)
+);
