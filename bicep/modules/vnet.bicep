@@ -40,6 +40,49 @@ resource publicNsg_resource 'Microsoft.Network/networkSecurityGroups@2024-05-01'
           destinationAddressPrefix: '*'
         }
       }
+      {
+        name: 'Allow-HTTPS'
+        properties: {
+          priority: 1001
+          direction: 'Inbound'
+          access: 'Allow'
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          destinationPortRange: '443'
+          sourceAddressPrefix: '*'
+          destinationAddressPrefix: '*'
+        }
+      }
+      {
+        name: 'Allow-HTTP'
+        properties: {
+          priority: 1002
+          direction: 'Inbound'
+          access: 'Allow'
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          destinationPortRange: '80'
+          sourceAddressPrefix: '*'
+          destinationAddressPrefix: '*'
+        }
+      }
+      {
+        name: 'Allow-CustomPorts'
+        properties: {
+          priority: 1003
+          direction: 'Inbound'
+          access: 'Allow'
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          destinationPortRanges: [
+            '3030'
+            '9090'
+            '3000'
+          ]
+          sourceAddressPrefix: '*'
+          destinationAddressPrefix: '*'
+        }
+      }
     ]
   }
 }
@@ -95,3 +138,4 @@ resource vnet_resource 'Microsoft.Network/virtualNetworks@2024-05-01' = {
     ]
   }
 }
+
