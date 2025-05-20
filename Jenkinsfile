@@ -6,9 +6,6 @@ pipeline {
     environment {
         acrusername = credentials('acrusername')  // Give secret name that you put in your keyvault
         acrpassword = credentials('acrpassword')
-        // AZURE_CLIENT_ID = credentials('AZURE-NON-PROD-CLIENTID')
-        // AZURE_CLIENT_SECRET = credentials('AZURE-NON-PROD-CLIENT-SECRET')
-        // AZURE_TENANT_ID = credentials('AZURE-NON-PROD-TENANT-ID')
     }
     stages {
         stage('Code_Checkout') {
