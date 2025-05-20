@@ -9,7 +9,7 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Azure Key Vault settings
-const keyVaultName = "userapp-keyvault-dev"; // <-- Replace with your Key Vault name
+const keyVaultName = "userregistrationvault"; // <-- Replace with your Key Vault name
 const vaultUrl = `https://${keyVaultName}.vault.azure.net`;
 const credential = new DefaultAzureCredential();
 const secretClient = new SecretClient(vaultUrl, credential);
