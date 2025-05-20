@@ -18,6 +18,7 @@ pipeline {
                 sh '''
                 echo "$acrpassword" | docker login -u "$acrusername" --password-stdin userregacr.azurecr.io
                 docker image build --network=host -t userregacr.azurecr.io/userreg"${ENV}":${ENV}-${BUILD_NUMBER} .
+                sed -i "s|repo_imagetag|userreg${ENV}:${ENV}-${BUILD_NUMBER}|" user_registration_deployment.yaml
                 '''
             }
         }
@@ -40,8 +41,14 @@ pipeline {
                 sh '''
                 az login --identity
                 az aks get-credentials --resource-group RG-AzureProject-dev --name UserRegistrationAKSCluster-dev --overwrite-existing
-                kubectl get no
+                kubectl apply -f user_registration_deployment.yaml
                 '''
+            }
+        }
+        stage("Removing the Docker Images and Cache") {
+            steps {
+                sh 'docker system prune --all --volumes -f'
+                cleanWs()
             }
         }
     }
