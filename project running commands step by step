@@ -1,25 +1,78 @@
-sudo apt install git docker.io -y
-git clone https://github.com/SumanthBade/UserRegistrationApp.git
-cd UserRegistrationApp/
-
-sudo docker build -t userapp .
-sudo docker run -p 3030:3030 userapp
-
-Secrets to Add in Key Vault
-Add these secrets in Azure Key Vault:
-
-sql-username
-sql-password
-sql-server
-sql-database
-
-sql server: userappsqlserver.database.windows.net
-sqldb: userapp-sqldb-dev
-sql username: sqluser
-password: Sumanth@!~97
+Create resource group
+az group create --name RG-AzureProject-dev --location eastus --tags projectType=AzureProject environment=dev
 
 
-Create table in sqldb
+To deploy resource(terraform apply)
+az deployment group create --resource-group RG-AzureProject-dev -f vnet.bicep
+
+
+To deploy resource(terraform apply)
+az deployment group create --resource-group RG-AzureProject-dev -f vm.bicep --parameters sshPublicKey='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDBrDOCm2R49t5/P4WxsStKhsTtuGbPsYzHUge7xWKUhtcCdEYHRRMGoaiEzJjQQqo58N2xCrytjY2UOlPVWN/k7/TT50q7KFGQAk3BiiqMJ/DKdYjnevP2Kg4XIX69uUUfZQc6/7ij/HIvXkKYWsvMIDtzP1lvIS9GNYL/DWldtmzXQQFOHxTq/9iA1GXt9v0rQET3UXX9jRwQI71NjBJ2yiU2p4f0GIpw2DJr52tSQt2Gk/PET5FFC0iyx62mh1kaPgnbfE0Px5I1Rqo+2lTp3dYdzmm0vrplcRD0nG4ASiYViL9xE0inCgiKeTHUr6n/oFdpNvhFLGA6wUjH6/jzvh2Bo4eVcFbCOATCQCth18FGWgwq+fZIiuvKo1GTkmUue08NGzeg32Ez1sMDoRBCloZ8MPC7qRXw+uA0KFoCoOiRQqvkWJbOFxePiSrzRfFxqaFQQIGfXB+ym4Bsk4DVupI8f+ESU09fm3TXoLkKft29IO7ah0SXRPd7GDGA6pU= generated-by-azure'
+
+login to virtual machine and install Jenkins:
+ssh -i OperatorVM_key.pem azureuser@172.206.212.231
+
+run:
+sudo apt update
+
+Install azure cli and login to portal using:
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+az login
+
+
+Install Jenkins using below script:
+sudo vim jenkins_install.sh
+---
+#!/bin/bash
+set -e
+
+echo "STEP-1: Installing Git, OpenJDK 17, and Maven"
+sudo apt-get update
+sudo apt-get install -y git openjdk-17-jdk maven wget gnupg2
+
+echo "Verify Java version"
+java -version
+
+echo "STEP-2: Adding Jenkins repo and importing GPG key"
+sudo mkdir -p /etc/apt/keyrings
+sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+
+echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+echo "STEP-3: Update packages and install Jenkins"
+sudo apt-get update
+sudo apt-get install -y jenkins
+
+echo "STEP-4: Start and enable Jenkins service"
+sudo systemctl start jenkins
+sudo systemctl enable jenkins
+sudo systemctl status jenkins --no-pager
+
+echo "All done! Jenkins should be up and running with Java 17 and Maven installed."
+---
+sudo chmod +x jenkins_install.sh
+./jenkins_install.sh
+
+login to Jenkins and set password.
+
+Install docker using:
+sudo apt install docker.io
+sudo usermod -aG docker jenkins
+sudo systemctl restart jenkins
+
+
+Install Git:
+sudo apt install git -y
+-------------------------------
+Setting up and configuring: keyvault, sqldatabase, acr, aks cluster
+1. KeyVault: After deploying make following changes
+- Go to KeyVault: IAM(add keyvault administrator permission for current user you are working as)
+NOTE: If you want to go for limited access then go for it.
+- Go to VM: Select your Operator Virtual Machine--Security--Identity--Status(On)--Save--Azure Role assignments--Add role assignment--Scope(KeyVault)--Subscription--Resurce--Role(Key Vault Secret User)--Save
+
+2. SQL Database: Setup it and put all its details in Key Vault as follows.
+- Go to SQL Server--Security--Networking--Public access--Selected Networks(Add your network details)--Save
+- Go to SQL Database--Query editor--Login to Database and run
 
 CREATE TABLE Users (
     ID INT IDENTITY(1,1) PRIMARY KEY,
@@ -27,3 +80,22 @@ CREATE TABLE Users (
     Email NVARCHAR(100),
     Contact NVARCHAR(100)
 );
+
+- Go to Key Vault--Objects--Secrets--Add below keys and their respective values
+
+sql-server: userappsqlserver.database.windows.net
+sql-database: userapp-sqldb-dev
+sql-username: sqluser
+sql-password: Sumanth@!~97
+
+3. Deploy AKS & ACR
+Go to aks cluster and in IAM add "Azure Kubernetes Service RBAC Cluster Admin" to vm managed identity
+Jenkins plugins: Kubernetes CLIVersion, Azure CLI
+
+NOTE: Make sure to change your keyvault name in app.js file
+When you create AKS Cluster it will get service account created by default, give "key vault secret user" permission to it and also add Kubernetes API public-IP in keyvault firewall.
+-----------------------
+Jenkins configuration:
+install docker plugin and add docker in tools
+
+----------------------
