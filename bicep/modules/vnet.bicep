@@ -78,6 +78,7 @@ resource publicNsg_resource 'Microsoft.Network/networkSecurityGroups@2024-05-01'
             '3030'
             '9090'
             '3000'
+            '8080'
           ]
           sourceAddressPrefix: '*'
           destinationAddressPrefix: '*'
