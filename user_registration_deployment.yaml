@@ -23,7 +23,7 @@ spec:
         app: userregistration
     spec:
       containers:
-      - image: image_to_deploy
+      - image: userregacr.azurecr.io/repo_imagetag
         name: webapp
         imagePullPolicy: Always
         resources: {}
