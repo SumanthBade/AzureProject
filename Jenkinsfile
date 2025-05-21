@@ -3,6 +3,15 @@ pipeline {
     tools {
         dockerTool 'docker'
     }
+
+    parameters {
+        choice(
+            choices: ['dev', 'test', 'uat', 'prod'],
+            description: 'Select the target environment',
+            name: 'ENV'
+        )
+    }
+    
     environment {
         acrusername = credentials('acrusername')  // Give secret name that you put in your keyvault
         acrpassword = credentials('acrpassword')
