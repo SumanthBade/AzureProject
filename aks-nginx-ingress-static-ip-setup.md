@@ -81,8 +81,12 @@ helm install new-ingress-nginx ingress-nginx/ingress-nginx \
 kubectl get pods -n nginx
 kubectl get svc -n nginx
 ```
+### ✅ Step 06: Deploy ingress resource
+- Create resource using
 
-### 🌐 Access your services Without a Domain
+```bash
+kubectl apply -f ngress-resource.yaml
+```
 
 ```bash
 # Replace placeholders: <ingress resource name>, <namespace>, <service name>, <service port>, <static-ip>
@@ -116,6 +120,14 @@ spec:
 ```bash
 kubectl apply -f ngress-resource.yaml
 ```
+
+### 🌐 Access your services Without a Domain
+
+```bash
+# Browse below link by making necessary changes
+service.<static-ip>.nip.io
+```
+
 ## 📌 Notes
 - Make sure the Kubernetes service (<service name>) is of type ClusterIP.
 - You can use the same approach to expose any other service on AKS via Ingress.
