@@ -22,6 +22,13 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/SumanthBade/UserRegistrationApp.git'
             }
         }
+        stage('Approval: Build, Push to ACR & Deploy to AKS') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    input message: "Approve Docker Build, Push to ACR & Deploy to ACR?"
+                }
+            }
+        }
         stage('Docker_build') {
             steps {
                 sh '''
@@ -29,13 +36,6 @@ pipeline {
                 docker image build --network=host -t userregacr.azurecr.io/userreg"${ENV}":${ENV}-${BUILD_NUMBER} .
                 sed -i "s|repo_imagetag|userreg${ENV}:${ENV}-${BUILD_NUMBER}|" user_registration_deployment.yaml
                 '''
-            }
-        }
-        stage('Approval: Push to ACR & Deploy to AKS') {
-            steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    input message: "Approve Docker Build & Push to ACR?"
-                }
             }
         }
         stage('Push the Docker Image to ACR') {
