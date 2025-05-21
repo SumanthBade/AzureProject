@@ -31,18 +31,18 @@ pipeline {
                 '''
             }
         }
-        stage('Push the Docker Image to ACR Hub') {
-            steps {
-                sh '''
-                docker image push userregacr.azurecr.io/userreg"${ENV}":${ENV}-${BUILD_NUMBER}
-                '''
-            }
-        }
-        stage('Approval: Build & Push') {
+        stage('Approval: Push to ACR & Deploy to AKS') {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
                     input message: "Approve Docker Build & Push to ACR?"
                 }
+            }
+        }
+        stage('Push the Docker Image to ACR') {
+            steps {
+                sh '''
+                docker image push userregacr.azurecr.io/userreg"${ENV}":${ENV}-${BUILD_NUMBER}
+                '''
             }
         }
         stage('Deploy_to_AKS') {
