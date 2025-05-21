@@ -24,3 +24,17 @@ az network public-ip create \
   --sku Standard \
   --allocation-method Static \
   --location <location>
+```
+
+## 🚀 Steps
+
+### ✅ Step 01: Reserve a Static Public IP in Azure
+
+```bash
+az network public-ip create \
+  --resource-group <resource group of AKS> \
+  --name <public-ip name> \
+  --sku Standard \
+  --allocation-method Static \
+  --location <location>
+```
