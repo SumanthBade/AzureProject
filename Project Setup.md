@@ -172,33 +172,6 @@ CREATE TABLE Users (
 
 - Jenkins
   - Login to jenkins & install docker plugin and add docker in tools
-  - Create pipeline 
+  - Create pipeline and add git credentials and path for your jenkins file.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+### NOTE: Make sure your services where your application is running have necessary permissions like "Key Vault Secret User" role asigned to managed identity
