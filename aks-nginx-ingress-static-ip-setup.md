@@ -87,7 +87,7 @@ kubectl get svc -n nginx
 ```bash
 kubectl apply -f ngress-resource.yaml
 ```
-
+- Copy & Paste below code by making necessary changes
 ```bash
 # Replace placeholders: <ingress resource name>, <namespace>, <service name>, <service port>, <static-ip>
 apiVersion: networking.k8s.io/v1
