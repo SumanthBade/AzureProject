@@ -23,10 +23,10 @@ This project demonstrates how to deploy a full DevOps environment using Azure CL
 - `vnet.bicep`: Bicep template for Virtual Network
 - `vm.bicep`: Bicep template for Virtual Machine
 - `jenkins_install.sh`: Jenkins installation script
-- `Key Vault`: To store your SQL Database credentials
+- `Azure Key Vault`: To store your SQL Database credentials
 - `SQL Database`: Application data storage center
-- `ACR`: image repository
-- `AKS`: For service deployment
+- `Azure Container Registry`: image repository
+- `Azure Kubernetes Service`: For service deployment
 
 ---
 
@@ -74,7 +74,6 @@ ssh -i OperatorVM_key.pem azureuser@<vm-ip>
 ```bash
 sudo apt update
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-az bicep install
 az login
 ```
 
@@ -147,24 +146,33 @@ sudo systemctl restart jenkins
 sudo apt install git -y
 ```
 
-### ✅ Create Resource Group
+### ✅ Setting up and configuring for `Azure Key Vault`, `Azure Kubernetes Service`, `Virtual Machine`, `SQL Server & Database`, `Jenkins`
+- Virtual Machine
+  - Enable managed identity for VM and assign `Key Vault Secret User` role to it.
+- Azure Kubernetes Service
+  - By default when you create a AKS Cluster is will be assigned a `Service Account`, assign `Key Vault Secret User` role to it.
+- Azure Key Vault
+  - Add Kubernetes API's public-IP in Key Vault firewall.
+  - Store your SQL Server & Database details as <key>: <value> with following keys
+    - sql-server: <server_name.database.windows.net>
+    - sql-database: <database_name>
+    - sql-username: <sql_username>
+    - sql-password: <sql_password>
+- SQL Server & Database
+  - Open Query editor and run
 
 ```bash
-az group create --name <resource-group-name> --location <location> --tags <key>=<value>
+CREATE TABLE Users (
+    ID INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(100),
+    Email NVARCHAR(100),
+    Contact NVARCHAR(100)
+);
 ```
 
-### ✅ Create Resource Group
-
-```bash
-az group create --name <resource-group-name> --location <location> --tags <key>=<value>
-```
-
-### ✅ Create Resource Group
-
-```bash
-az group create --name <resource-group-name> --location <location> --tags <key>=<value>
-```
-
+- Jenkins
+  - Login to jenkins & install docker plugin and add docker in tools
+  - Create pipeline 
 
 
 
