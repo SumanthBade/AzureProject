@@ -6,7 +6,7 @@ pipeline {
 
     parameters {
         choice(
-            choices: ['dev', 'test', 'uat', 'prod'],
+            choices: ['dev'],
             description: 'Select the target environment',
             name: 'ENV'
         )
